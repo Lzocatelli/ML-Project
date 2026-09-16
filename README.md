@@ -1,4 +1,4 @@
-# DS# Priorização de clientes em campanha bancária
+# Priorização de clientes em campanha bancária
 
 Projeto de aprendizado de máquina em Python para responder: **usando informações disponíveis antes da ligação, é possível priorizar clientes pela chance de contratar um depósito a prazo?**
 
