@@ -94,6 +94,8 @@ A model can rank customers usefully while producing probabilities that are too h
 
 One relevant limitation is the change in subscription rates across the chronological split: **4.8% in training, 11.1% in validation, and 30.8% in testing**. These results support using the model primarily as a ranking tool and show why probability calibration should be checked before using scores as reliable individual probabilities.
 
+![Subscription rate: all customers versus model's top 10%](figures/top_10_subscription_rate.png)
+
 ## Decisions and limitations
 
 - The data dictionary describes `pdays = 999` as indicating no previous contact, but 4,110 records have this code together with `previous > 0` and `poutcome = failure`. The notebook uses `previous` and `poutcome` as provided and does not silently overwrite the original values.
