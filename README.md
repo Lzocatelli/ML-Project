@@ -1,49 +1,49 @@
-# Priorização de clientes em campanha bancária
+# Customer prioritization in a banking campaign
 
-Projeto de aprendizado de máquina em Python para responder: **usando informações disponíveis antes da ligação, é possível priorizar clientes pela chance de contratar um depósito a prazo?**
+A Python machine learning project answering the following question: **using information available before the call, is it possible to prioritize customers based on their likelihood of subscribing to a term deposit?**
 
-[Abrir o notebook](Priorizacao_Clientes_Bank_Marketing_GitHub.ipynb) · [Fonte dos dados](https://archive.ics.uci.edu/dataset/222/bank+marketing)
+[Open the notebook](Priorizacao_Clientes_Bank_Marketing_GitHub.ipynb) · [Data source](https://archive.ics.uci.edu/dataset/222/bank+marketing)
 
-## Como executar
+## How to run
 
-1. Abra `Priorizacao_Clientes_Bank_Marketing_GitHub.ipynb` no Google Colab.
-2. Execute as células em ordem com acesso à internet. A primeira célula de código baixa os dados diretamente da UCI; não é necessário copiar arquivos para o Drive.
-3. As dependências usadas são `pandas`, `numpy` e `scikit-learn`, normalmente disponíveis no Colab. Em outro ambiente, instale-as com `pip install pandas numpy scikit-learn`.
+1. Open `Priorizacao_Clientes_Bank_Marketing_GitHub.ipynb` in Google Colab.
+2. Run the cells in order with internet access. The first code cell downloads the data directly from UCI; there is no need to copy files to Drive.
+3. The dependencies used are `pandas`, `numpy`, and `scikit-learn`, which are normally available in Colab. In another environment, install them with `pip install pandas numpy scikit-learn`.
 
-O notebook público foi distribuído **sem saídas de execução e sem metadados pessoais**. Os números abaixo foram obtidos na execução original e podem ser reproduzidos ao executar todas as células.
+The public notebook was distributed **without execution outputs or personal metadata**. The numbers below were obtained during the original run and can be reproduced by executing all cells.
 
-## Método
+## Method
 
-- Dados: `bank-additional-full.csv`, 41.188 registros de campanhas de um banco português, ordenados por data no arquivo original.
-- Alvo: contratação do depósito a prazo (`y = yes`).
-- Variáveis: atributos do cliente e histórico de campanhas; na versão com contexto, mês, dia da semana e canal do contato planejado.
-- `duration` foi excluída por só ser conhecida após a ligação; `campaign` também foi excluída porque inclui o contato atual.
-- Divisão cronológica: 60% treino, 20% validação e 20% teste. Preprocessamento categórico e numérico é ajustado somente no treino.
-- Modelos comparados na validação: regressão logística, random forest e regressão logística com variáveis de contexto. O escolhido foi reajustado nos primeiros 80% antes da avaliação final.
-- Métricas: *average precision*, ROC-AUC e taxa de contratação entre os 10% de clientes com maior pontuação.
+- Data: `bank-additional-full.csv`, containing 41,188 records from campaigns run by a Portuguese bank, ordered by date in the original file.
+- Target: subscription to the term deposit (`y = yes`).
+- Features: customer attributes and campaign history; in the context-aware version, month, day of the week, and planned contact channel are also included.
+- `duration` was excluded because it is only known after the call; `campaign` was also excluded because it includes the current contact.
+- Chronological split: 60% training, 20% validation, and 20% test. Categorical and numerical preprocessing is fitted only on the training set.
+- Models compared on the validation set: logistic regression, random forest, and logistic regression with context variables. The selected model was refitted on the first 80% before the final evaluation.
+- Metrics: *average precision*, ROC-AUC, and the subscription rate among the 10% of customers with the highest scores.
 
-## Resultados
+## Results
 
-| Métrica | Validação (logística com contexto) | Teste final |
+| Metric | Validation (logistic regression with context) | Final test |
 |---|---:|---:|
-| Taxa de contratação na amostra | 11,1% | 30,8% |
-| Average precision | 0,197 | 0,493 |
-| ROC-AUC | 0,643 | 0,696 |
-| Taxa de contratação no top 10% | 23,7% | 51,3% |
-| Contratações no top 10% | 195 | 423 |
-| Probabilidade média prevista | 6,9% | 17,4% |
+| Subscription rate in the sample | 11.1% | 30.8% |
+| Average precision | 0.197 | 0.493 |
+| ROC-AUC | 0.643 | 0.696 |
+| Subscription rate in the top 10% | 23.7% | 51.3% |
+| Subscriptions in the top 10% | 195 | 423 |
+| Mean predicted probability | 6.9% | 17.4% |
 
-No teste final, os 824 registros do top 10% reuniram **423 das 2.540 contratações**. A ordenação foi útil para priorizar contatos, mas a probabilidade média prevista (17,4%) ficou abaixo da taxa observada (30,8%).
+In the final test set, the 824 records in the top 10% accounted for **423 of the 2,540 subscriptions**. The ranking was useful for prioritizing contacts, but the mean predicted probability (17.4%) was lower than the observed subscription rate in that group (51.3%), indicating that the probabilities were not well calibrated.
 
-## Decisões e limites
+## Decisions and limitations
 
-- O dicionário descreve `pdays = 999` como ausência de contato anterior, mas há 4.110 registros com esse código, `previous > 0` e `poutcome = failure`. O notebook usa `previous` para identificar histórico anterior e `pdays != 999` apenas como indicador de intervalo de dias informado.
-- A taxa de contratação muda muito entre períodos: 4,8% no treino, 11,1% na validação e 30,8% no teste. Isso limita a extrapolação das probabilidades.
-- A taxa e a composição do teste foram inspecionadas durante a exploração dos dados; assim, a avaliação não foi completamente cega. A escolha do modelo usou as métricas da validação. A ablação de `month` foi feita após consultar o teste e é apenas diagnóstica.
-- `month` ajudou na validação, mas a base não traz um ano explícito por linha para separar sazonalidade de mudanças entre campanhas. Interpretar o mês como causa da contratação seria incorreto.
-- O uso de `contact` pressupõe que o canal já esteja definido ao preparar a lista. Se essa informação só estiver disponível após a chamada, o modelo prospectivo deverá excluí-la e ser reavaliado.
-- Os dados são históricos (Portugal, 2008–2010). Os resultados não demonstram desempenho em campanhas atuais ou em outras populações.
+- The data dictionary describes `pdays = 999` as indicating no previous contact, but 4,110 records have this code together with `previous > 0` and `poutcome = failure`. The notebook uses `previous` to identify historical contact and treats `pdays` as a separate feature.
+- The subscription rate changes substantially across periods: 4.8% in training, 11.1% in validation, and 30.8% in testing. This limits the extrapolation of the probabilities.
+- The test rate and composition were inspected during exploratory data analysis; therefore, the evaluation was not completely blind. Model selection used validation metrics. The final analysis should be interpreted as an estimate under temporal shift, not as a fully untouched benchmark.
+- `month` helped on validation, but the dataset does not provide an explicit year for each row to distinguish seasonality from changes between campaigns. Interpreting the month as a cause of subscription would be incorrect.
+- Using `contact` assumes that the channel has already been defined when preparing the call list. If this information is only available after the call, a prospective model should exclude it and be reevaluated.
+- The data are historical (Portugal, 2008–2010). The results do not demonstrate performance in current campaigns or in other populations.
 
-## Créditos
+## Credits
 
-Dados: Moro, S., Rita, P., & Cortez, P. (2014), [*Bank Marketing*](https://doi.org/10.24432/C5K306), UCI Machine Learning Repository. O conjunto é distribuído sob [CC BY 4.0](https://creativecommons.org/licenses/by/4.0/). O notebook baixa os dados da UCI durante a execução; eles não estão incluídos neste repositório.
+Data: Moro, S., Rita, P., & Cortez, P. (2014), [*Bank Marketing*](https://doi.org/10.24432/C5K306), UCI Machine Learning Repository. The dataset is distributed under [CC BY 4.0](https://creativecommons.org/licenses/by/4.0/).
